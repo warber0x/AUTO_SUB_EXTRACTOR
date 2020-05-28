@@ -1,6 +1,8 @@
+# Automated subdomains extractor
+
 The AUTO_SUB_EXTRACTOR is an automated tool that allows you to search for subdomains using crt.sh
 
-Requirements:
+##### Requirements:
 
 1. You need to have Golang installed. 
 2. Download ‘httprobe’ by running "go get -u github.com/tomnomnom/httprobe" & compile "go build main.go"
