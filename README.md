@@ -10,10 +10,10 @@ Requirements:
 
 Here are what AUTO_SUB_EXTRACTOR will perform when executed:
 
-1- It extracts subdomains from crt.sh
-2- Remove dups and store in a file
-4- Run httprobe to validate urls
-5- print URLs & store in file for future usage.
+1. It extracts subdomains from crt.sh
+2. Remove dups and store in a file
+4. Run httprobe to validate urls
+5. print URLs & store in file for future usage
 
 => All the sudomains validated are in the same folder where the Sub_Extractor.py was executed.
 
