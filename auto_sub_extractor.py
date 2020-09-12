@@ -1,3 +1,9 @@
+###
+# Country: Morocco
+# The code get a list of subdomains, remove dups, execute EyeWitness
+# Requirements: Eyewitness executable, python BeautifulSoup, httprobe executable
+###
+
 from bs4 import BeautifulSoup
 import requests
 import sys
@@ -6,7 +12,6 @@ import os
 import threading
 import time
 
-global dead 
 dead = False
 
 def spinning_cursor():
@@ -23,6 +28,32 @@ def loading():
 		sys.stdout.flush()
 		time.sleep(0.1)
 		sys.stdout.write('\b')
+
+def createFile():
+	global dead
+	
+	# Get elements without dups #
+	lines_seen = set() # holds lines already seen
+	outfile = open("out.txt", "w")
+	for line in open(sys.argv[1] + "_urls.txt", "r"):
+		if line not in lines_seen: # not a duplicate
+			outfile.write(line)
+			lines_seen.add(line)
+	outfile.close()
+	
+	##############REMOVE TEMPORARY FILES###############
+
+	os.system('rm  '+ sys.argv[1] + '_urls.txt')
+	os.system("mv out.txt " + sys.argv[1] + "_urls.txt")
+	out = subprocess.run('cat ' + sys.argv[1] + '_urls.txt| httprobe -c 60 > ' + sys.argv[1] + '_valid_urls_no_dups.txt', shell=True)
+	dead = True 
+	os.system('rm  '+ sys.argv[1] + '_urls.txt')
+	print('')
+	os.system("cat " + sys.argv[1] + "_valid_urls_no_dups.txt")
+	print ("Done ... ")
+
+def eyewitness():
+	out = os.system('eyewitness --no-prompt -d ' + sys.argv[1] + '_screenshots -f ./' + sys.argv[1] + '_valid_urls_no_dups.txt') 
 			
 
 print("  _ _ ___        _____ _         __           _ _ ")
@@ -43,6 +74,11 @@ if (len(sys.argv) != 2):
 
 url="https://crt.sh/?q=" + sys.argv[1] 
 
+print ("")
+print ("Please wait, validating urls...")
+print ("===============================")
+x.start()
+
 # Make a GET request to fetch the raw HTML content
 html_content = requests.get(url).text
 
@@ -52,6 +88,7 @@ counter = 0
 table = soup.find_all('table')[1] # Grab the first table
 urls_file = open(sys.argv[1] + "_urls.txt", "w")
 
+# Remove tr td tags #
 for tr in table.findAll('tr'):
 	for td in tr.findAll('td'):
 
@@ -71,24 +108,10 @@ for tr in table.findAll('tr'):
 
 urls_file.close()
 
-lines_seen = set() # holds lines already seen
-outfile = open("out.txt", "w")
-for line in open(sys.argv[1] + "_urls.txt", "r"):
-    if line not in lines_seen: # not a duplicate
-        outfile.write(line)
-        lines_seen.add(line)
-outfile.close()
+# Create output file #
+createFile()
+eyewitness()
 
-print ("")
-print ("Please wait, validating urls...")
-print ("===============================")
-x.start()
-os.system('rm  '+ sys.argv[1] + '_urls.txt')
-os.system("mv out.txt " + sys.argv[1] + "_urls.txt")
-out = subprocess.run('cat ' + sys.argv[1] + '_urls.txt| httprobe -c 60 > ' + sys.argv[1] + "_valid_urls_no_dups.txt", shell=True)
-dead = True 
-os.system('rm  '+ sys.argv[1] + '_urls.txt')
-print('')
-os.system("cat " + sys.argv[1] + "_valid_urls_no_dups.txt")
+
 
 
